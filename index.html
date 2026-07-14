@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Space Mystery</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ MENU SCREEN ══ -->
+<div id="menuScreen">
+
+  <canvas id="starCanvas"></canvas>
+
+  <div id="menuContent">
+
+    <div id="menuLogo">
+      <div id="logoShip">🛸</div>
+      <div id="logoTitle">SPACE MYSTERY</div>
+      <div id="logoSub">Among the Stars · Trust No One</div>
+    </div>
+
+    <div id="menuCard">
+
+      <div id="nameRow">
+        <input id="nameInput" class="sm-input" placeholder="Your name (optional)" maxlength="16" autocomplete="off">
+      </div>
+
+      <div id="menuBtns">
+        <button class="sm-btn btn-host" id="hostBtn">🚀 HOST GAME</button>
+        <button class="sm-btn btn-join" id="joinBtn">🔑 JOIN GAME</button>
+      </div>
+
+      <div id="joinPanel" class="hidden">
+        <div id="joinRow">
+          <input id="codeInput" class="sm-input code-input" placeholder="ROOM CODE" maxlength="4"
+            autocomplete="off" autocorrect="off" spellcheck="false">
+          <button class="sm-btn btn-join-go" id="joinGoBtn">JOIN →</button>
+        </div>
+        <div id="joinError"></div>
+      </div>
+
+      <div id="menuStatus" class="hidden">Connecting…</div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════ LOBBY SCREEN ══ -->
+<div id="lobbyScreen" class="hidden">
+
+  <!-- Top bar -->
+  <div id="lobbyTopBar">
+    <div id="lobbyGameTitle">SPACE MYSTERY</div>
+    <div id="lobbyCodeArea">
+      <span id="lobbyCodeLabel">ROOM CODE</span>
+      <span id="lobbyCodeValue">----</span>
+      <button id="copyCodeBtn" title="Copy code">📋</button>
+    </div>
+  </div>
+
+  <!-- Main area -->
+  <div id="lobbyMain">
+
+    <!-- ── Spaceship interior ── -->
+    <div id="shipWrap">
+
+      <div id="ship">
+        <!-- Ceiling -->
+        <div id="shipCeiling">
+          <div class="ceil-panel"></div>
+          <div class="ceil-light"></div>
+          <div class="ceil-panel"></div>
+          <div class="ceil-light"></div>
+          <div class="ceil-panel"></div>
+        </div>
+
+        <!-- Window port -->
+        <div id="shipWindow">
+          <div id="windowSpace">
+            <div class="win-star" style="top:20%;left:15%"></div>
+            <div class="win-star" style="top:55%;left:70%;width:3px;height:3px"></div>
+            <div class="win-star" style="top:30%;left:55%"></div>
+            <div class="win-star" style="top:70%;left:30%"></div>
+            <div class="win-star" style="top:10%;left:80%"></div>
+            <div class="win-star" style="top:80%;left:85%"></div>
+            <div class="win-planet"></div>
+          </div>
+        </div>
+
+        <!-- Sign on back wall -->
+        <div id="shipSign">
+          <span id="shipSignText">SKELD II</span>
+          <span id="shipSignSub">LONG RANGE TRANSPORT</span>
+        </div>
+
+        <!-- Computer terminal (decorative) -->
+        <div id="shipTerminal">
+          <div class="term-screen">
+            <div class="term-line"></div>
+            <div class="term-line short"></div>
+            <div class="term-line"></div>
+            <div class="term-line short"></div>
+          </div>
+          <div class="term-btn-row">
+            <div class="term-btn red"></div>
+            <div class="term-btn yellow"></div>
+            <div class="term-btn green"></div>
+          </div>
+        </div>
+
+        <!-- Player stage - crewmates shown here -->
+        <div id="playerStage"></div>
+
+        <!-- Floor strip -->
+        <div id="shipFloor">
+          <div class="floor-tile"></div><div class="floor-tile"></div>
+          <div class="floor-tile"></div><div class="floor-tile"></div>
+          <div class="floor-tile"></div><div class="floor-tile"></div>
+          <div class="floor-tile"></div><div class="floor-tile"></div>
+        </div>
+      </div>
+
+    </div><!-- /shipWrap -->
+
+    <!-- ── Right panel: settings + players + start ── -->
+    <div id="lobbyPanel">
+
+      <div id="lobbySettingsBox">
+        <div class="panel-title">⚙ SETTINGS</div>
+        <div id="settingsContent"><!-- filled by lobby.js --></div>
+      </div>
+
+      <div id="lobbyPlayersBox">
+        <div class="panel-title">👥 PLAYERS <span id="lobbyCountBadge">0/10</span></div>
+        <div id="lobbyPlayerList"><!-- filled by lobby.js --></div>
+      </div>
+
+      <div id="lobbyActions">
+        <button id="startGameBtn" class="sm-btn btn-start hidden">▶ START GAME</button>
+        <div id="lobbyWaitText" class="hidden">Waiting for host…</div>
+        <button id="leaveBtn" class="sm-btn btn-leave">✕ LEAVE</button>
+      </div>
+
+    </div><!-- /lobbyPanel -->
+
+  </div><!-- /lobbyMain -->
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════════ GAME ══ -->
+<div id="gameContainer" class="hidden">
+
+  <!-- Top-left: chat button + HUD -->
+  <div id="topLeft">
+    <button id="chatToggleBtn" title="Open chat">💬<span id="chatUnread" class="hidden">0</span></button>
+    <div id="hud">Online: 1</div>
+  </div>
+
+  <!-- Chat panel -->
+  <div id="chatPanel" class="hidden">
+    <div id="chatHeader">
+      <span>💬 CHAT</span>
+      <button id="chatCloseBtn">✕</button>
+    </div>
+    <div id="chatMessages"></div>
+    <div id="chatInputRow">
+      <input id="chatInput" placeholder="Message…" maxlength="200" autocomplete="off">
+      <button id="chatSendBtn">➤</button>
+    </div>
+  </div>
+
+  <!-- Task prompt button -->
+  <button id="taskBtn" style="display:none">📋 TASK</button>
+
+  <!-- Task overlay -->
+  <div id="taskOverlay" style="display:none">
+    <div id="taskWindow">
+      <div id="taskTitle">Fix the Wires</div>
+      <div id="taskContent"></div>
+      <button onclick="closeTask()" id="taskCloseBtn">✕ CLOSE</button>
+    </div>
+  </div>
+
+  <!-- Joystick -->
+  <div id="joystick"><div id="stick"></div></div>
+
+  <!-- Connect overlay (reconnect state) -->
+  <div id="connectOverlay" class="hidden">
+    <div id="connectSpinner"></div>
+    <div id="connectText">Connecting…</div>
+  </div>
+
+</div><!-- /gameContainer -->
+
+<!-- Three.js -->
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+
+<!-- Game modules (order matters) -->
+<script src="game.js"></script>
+<script src="map.js"></script>
+<script src="player.js"></script>
+<script src="task.js"></script>
+<script src="controls.js"></script>
+<script src="ai.js"></script>
+<script src="network.js"></script>
+<script src="lobby.js"></script>
+
+</body>
+</html>
