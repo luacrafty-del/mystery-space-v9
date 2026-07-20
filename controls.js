@@ -24,21 +24,25 @@ function updateStick(e){
 
     const rect = joystick.getBoundingClientRect();
 
-    let x = e.clientX - (rect.left + 60);
-    let y = e.clientY - (rect.top + 60);
+    const stickSize = stick.offsetWidth || 40;
+    const center = rect.width / 2;
+    const maxTravel = Math.max(24, (rect.width - stickSize) / 2 - 6);
+
+    let x = e.clientX - (rect.left + center);
+    let y = e.clientY - (rect.top + center);
 
     let d = Math.sqrt(x*x + y*y);
 
-    if(d > 45){
-        x = x/d*45;
-        y = y/d*45;
+    if(d > maxTravel){
+        x = x/d*maxTravel;
+        y = y/d*maxTravel;
     }
 
-    stick.style.left = (x+40) + "px";
-    stick.style.top = (y+40) + "px";
+    stick.style.left = (center - stickSize / 2 + x) + "px";
+    stick.style.top = (center - stickSize / 2 + y) + "px";
 
-    moveX = x/45;
-    moveY = -y/45;
+    moveX = x/maxTravel;
+    moveY = -y/maxTravel;
 
 }
 
@@ -49,8 +53,11 @@ function resetStick(){
     moveX = 0;
     moveY = 0;
 
-    stick.style.left = "40px";
-    stick.style.top = "40px";
+    const rect = joystick.getBoundingClientRect();
+    const stickSize = stick.offsetWidth || 40;
+    const center = rect.width / 2;
+    stick.style.left = (center - stickSize / 2) + "px";
+    stick.style.top = (center - stickSize / 2) + "px";
 
 }
 
@@ -105,7 +112,7 @@ document.addEventListener("pointerdown", e=>{
 
     // Ignore taps/clicks on UI elements (joystick, task
     // button, task overlay) so they don't spin the camera
-    if(e.target.closest("#joystick, #taskBtn, #taskOverlay")) return;
+    if(e.target.closest("#joystick, #taskBtn, #taskOverlay, #actionBar, #chatPanel, #chatToggleBtn")) return;
 
     if(e.clientX > window.innerWidth/2){
 

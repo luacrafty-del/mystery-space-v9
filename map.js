@@ -67,6 +67,14 @@ function getGlowTexture(){
 // CREATE WALL
 // ===============================
 
+function markShadow(mesh){
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    return mesh;
+
+}
+
 function createWall(x, z, w, d){
 
     const wall = new THREE.Mesh(
@@ -79,6 +87,7 @@ function createWall(x, z, w, d){
 
     wall.position.set(x, WALL_HEIGHT / 2, z);
 
+    markShadow(wall);
     scene.add(wall);
 
     walls.push({
@@ -103,6 +112,7 @@ function paintFloor(x, z, w, d, color){
 
     patch.position.set(x, -0.89, z);
 
+    patch.receiveShadow = true;
     scene.add(patch);
 
 }
@@ -125,6 +135,7 @@ function addCeilingLight(x, z, intensity){
 
     panel.position.set(x, CEILING_Y - 0.2, z);
 
+    panel.castShadow = true;
     scene.add(panel);
 
     const light = new THREE.PointLight(0xfff2cf, intensity, 26, 1.5);
@@ -166,6 +177,63 @@ function addCeilingLight(x, z, intensity){
 // ===============================
 // VENT (imposter-only shortcut between rooms)
 // ===============================
+
+function createRoomLabel(text, x, z){
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 128;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "rgba(8,12,24,0.72)";
+    ctx.roundRect(18, 22, 476, 84, 18);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(120,190,255,0.55)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.fillStyle = "#d8f3ff";
+    ctx.font = "700 42px Segoe UI, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(text.toUpperCase(), 256, 76);
+
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: new THREE.CanvasTexture(canvas),
+        transparent: true,
+        depthWrite: false
+    }));
+    sprite.scale.set(5.5, 1.35, 1);
+    sprite.position.set(x, 2.8, z);
+    scene.add(sprite);
+
+}
+
+function createRoomProps(x, z, color){
+
+    const top = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.55, 1.7, 0.35, 28),
+        new THREE.MeshStandardMaterial({ color:0x2b3344, roughness:0.65, metalness:0.25 })
+    );
+    top.position.set(x, -0.62, z);
+    markShadow(top);
+    scene.add(top);
+
+    const core = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.72, 0.72, 0.16, 24),
+        new THREE.MeshStandardMaterial({ color, emissive:color, emissiveIntensity:0.35, roughness:0.4 })
+    );
+    core.position.set(x, -0.35, z);
+    scene.add(core);
+
+    for(let i = 0; i < 3; i++){
+        const crate = new THREE.Mesh(
+            new THREE.BoxGeometry(1.2, 0.9, 1.2),
+            new THREE.MeshStandardMaterial({ color:0x394255, roughness:0.85 })
+        );
+        crate.position.set(x - 3 + i * 3, -0.52, z + 3.2);
+        markShadow(crate);
+        scene.add(crate);
+    }
+
+}
 
 function createVent(x, z, label){
 
@@ -302,6 +370,7 @@ function buildMap(layout){
 
     floor.position.y = -1;
 
+    floor.receiveShadow = true;
     scene.add(floor);
 
     // ROOF (keeps the facility from feeling like an open box;
@@ -342,6 +411,8 @@ function buildMap(layout){
 
         paintFloor(geo.centerX, geo.centerZ, ROOM_W, ROOM_D, slot.color);
         addCeilingLight(geo.centerX, geo.centerZ, 2.2);
+        createRoomLabel(slot.theme, geo.centerX, geo.centerZ - 4.6);
+        createRoomProps(geo.centerX, geo.centerZ, slot.color);
 
         createVent(geo.ventX, geo.ventZ, slot.theme);
         window.VENTS.push({ id: slot.id, label: slot.theme, x: geo.ventX, z: geo.ventZ });

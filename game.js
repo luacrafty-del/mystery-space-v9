@@ -6,6 +6,7 @@
 // Scene
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x07080f);
+scene.fog = new THREE.FogExp2(0x07080f, 0.018);
 
 // Camera
 const camera = new THREE.PerspectiveCamera(
@@ -20,6 +21,7 @@ const renderer = new THREE.WebGLRenderer({
 antialias:true
 });
 
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(
 window.innerWidth,
 window.innerHeight
@@ -31,7 +33,9 @@ window.innerHeight
 // plenty of lights in the scene.
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.15;
+renderer.toneMappingExposure = 1.25;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 renderer.domElement.id = "gameCanvas";
 document.getElementById("gameContainer").appendChild(
@@ -54,6 +58,12 @@ scene.add(hemiLight);
 
 const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
 sunLight.position.set(15, 25, 10);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.set(1024, 1024);
+sunLight.shadow.camera.left = -32;
+sunLight.shadow.camera.right = 32;
+sunLight.shadow.camera.top = 32;
+sunLight.shadow.camera.bottom = -32;
 scene.add(sunLight);
 
 // ===============================
@@ -135,6 +145,7 @@ window.innerHeight;
 
 camera.updateProjectionMatrix();
 
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 renderer.setSize(
 window.innerWidth,
 window.innerHeight
