@@ -1358,3 +1358,19 @@ html {
   #mobaSkills { grid-template-columns: repeat(2, 66px); gap: 10px; }
   .mobaSkill { min-height: 66px; border-radius: 19px; }
 }
+
+#mobaBoard {
+  padding: 10px 12px;
+  border: 1px solid rgba(255,220,130,.25);
+  border-radius: 14px;
+  background: rgba(35,24,8,.62);
+  color: #ffe8a3;
+  font-size: 13px;
+  font-weight: 800;
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 720px) {
+  #mobaTop { align-items: flex-start; }
+  #mobaBoard { font-size: 11px; padding: 8px 9px; }
+}
