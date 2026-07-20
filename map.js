@@ -178,6 +178,26 @@ function addCeilingLight(x, z, intensity){
 // VENT (imposter-only shortcut between rooms)
 // ===============================
 
+function roundedRectPath(ctx, x, y, w, h, r){
+
+    if(typeof ctx.roundRect === "function"){
+        ctx.roundRect(x, y, w, h, r);
+        return;
+    }
+
+    const radius = Math.min(r, w / 2, h / 2);
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+
+}
+
 function createRoomLabel(text, x, z){
 
     const canvas = document.createElement("canvas");
@@ -185,7 +205,9 @@ function createRoomLabel(text, x, z){
     canvas.height = 128;
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "rgba(8,12,24,0.72)";
-    ctx.roundRect(18, 22, 476, 84, 18);
+    ctx.beginPath();
+    roundedRectPath(ctx, 18, 22, 476, 84, 18);
+    ctx.closePath();
     ctx.fill();
     ctx.strokeStyle = "rgba(120,190,255,0.55)";
     ctx.lineWidth = 4;
