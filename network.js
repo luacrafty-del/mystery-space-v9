@@ -33,6 +33,14 @@ let reconnectTimer   = null;
 let pendingAction    = null;  // { type:'create'|'join', name, code, isPublic }
 
 function connectToServer(onOpen){
+  if(ws && ws.readyState === WebSocket.OPEN){
+    if(typeof onOpen === 'function') onOpen();
+    if(pendingAction) sendPendingRoomActionNow();
+    return;
+  }
+
+  if(ws && ws.readyState === WebSocket.CONNECTING) return;
+
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
   try { ws = new WebSocket(proto + '://' + location.host); }
   catch(e){ scheduleReconnect(); return; }
@@ -83,9 +91,21 @@ document.addEventListener('visibilitychange', ()=>{
   }
 });
 
+function sendPendingRoomActionNow(){
+  if(!pendingAction || !ws || ws.readyState !== WebSocket.OPEN) return false;
+
+  const action = pendingAction;
+  if(action.type === 'create'){
+    sendToServer({ type:'createRoom', name:action.name, isPublic:action.isPublic });
+  } else {
+    sendToServer({ type:'joinRoom', name:action.name, code:action.code });
+  }
+  pendingAction = null;
+  return true;
+}
+
 function sendPendingRoomAction(){
-  if(!pendingAction || !ws || ws.readyState !== WebSocket.OPEN) return;
-  // Wait for welcome, then the welcome handler sends createRoom/joinRoom
+  sendPendingRoomActionNow();
 }
 
 // ── Send helpers ─────────────────────────────────────────────────────────────
@@ -106,14 +126,7 @@ function handleServerMessage(msg){
       myId = msg.id;
       window.getMyId = () => myId;
       // Now send the pending room action (create or join)
-      if(pendingAction){
-        if(pendingAction.type === 'create'){
-          sendToServer({ type:'createRoom', name:pendingAction.name, isPublic:pendingAction.isPublic });
-        } else {
-          sendToServer({ type:'joinRoom', name:pendingAction.name, code:pendingAction.code });
-        }
-        pendingAction = null;
-      }
+      sendPendingRoomActionNow();
       break;
 
     case 'roomCreated':
@@ -237,12 +250,21 @@ function setupGameScene(players){
 }
 
 function beginGame(layout){
-  showGameContainer();
-
-  if(!window.gameStarted){
-    buildMap(layout);
-    if(typeof initTasks === 'function') initTasks(layout);
+  try{
+    if(!window.gameStarted){
+      buildMap(layout);
+      if(typeof initTasks === 'function') initTasks(layout);
+    }
+  }catch(err){
+    console.error('Failed to build game world:', err);
+    window.gameStarted = false;
+    document.getElementById('gameContainer').classList.add('hidden');
+    document.getElementById('lobbyScreen').classList.remove('hidden');
+    addChatSystemMsg('Could not create the world on this device. Please refresh and try again.');
+    return;
   }
+
+  showGameContainer();
   window.gameStarted = true;
 
   player.position.set(0, 0, -10);
